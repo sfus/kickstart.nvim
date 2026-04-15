@@ -1,34 +1,19 @@
 -- https://zenn.dev/vim_jp/articles/1b4344e41b9d5b
 -- https://qiita.com/Tsuyopon-1067/items/54bdfb5a24e62d1627ea
 
--- Open nvim-tree by default, but keep focus on the file when a filename was given.
+-- Open nvim-tree when Neovim starts with no file argument, or with a directory (e.g. `nvim .`).
 local function open_nvim_tree_on_start(data)
   local api = require 'nvim-tree.api'
-
-  -- Detect cases
-  local is_dir = vim.fn.isdirectory(data.file) == 1
-  local no_name = (data.file == '' and vim.bo[data.buf].buftype == '')
-
-  if is_dir then
-    -- Started with a directory: cd into it and open the tree (focus stays in tree)
-    vim.cmd.cd(data.file)
+  local arg = data.file or ''
+  if arg == '' then
     api.tree.open()
     return
   end
-
-  if no_name then
-    -- Started without a file (empty buffer): just open the tree
-    api.tree.open()
+  if vim.fn.isdirectory(arg) ~= 1 then
     return
   end
-
-  -- Started with a filename: open the tree but keep focus on the file window
-  local file_win = vim.api.nvim_get_current_win() -- remember current (file) window
-  api.tree.open() -- open tree on the side
-  pcall(vim.cmd, 'NvimTreeFindFile') -- reveal the file in the tree (ignore errors)
-  if vim.api.nvim_win_is_valid(file_win) then -- restore focus to the file window
-    vim.api.nvim_set_current_win(file_win)
-  end
+  vim.cmd.cd(arg)
+  api.tree.open()
 end
 
 vim.api.nvim_create_autocmd('VimEnter', {
