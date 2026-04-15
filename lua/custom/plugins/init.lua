@@ -96,6 +96,117 @@ vim.keymap.set('c', '<C-g>', '<C-c>', { silent = true, desc = 'Cmdline: cancel' 
 -- Optional: also override in Normal mode (disables default file-status on <C-g>)
 -- vim.keymap.set("n", "<C-g>", "<Esc>", { silent = true, desc = "Normal: Ctrl-g as Escape" })
 
+
+-- When inactive (tmux pane loses focus): fixed gray #3d3d3d for bg and split borders (see tmux-focus-events.lua)
+-- NvimTree: Normal*, NvimTreeWinSeparator (winhighlight); WinSeparator is the global vertical split line.
+local INACTIVE_HL_GROUPS = {
+  'Normal',
+  'NormalNC', -- non-current windows (e.g. editor while cursor is in NvimTree)
+  'NvimTreeNormal',
+  'NvimTreeNormalNC',
+  'NvimTreeNormalFloat',
+  'WinSeparator',
+  'NvimTreeWinSeparator',
+  'VertSplit', -- legacy themes; harmless if unused
+}
+
+--- Use fg for split lines (WinSeparator / VertSplit); bg for Normal* fills.
+local INACTIVE_USE_FG = {
+  WinSeparator = true,
+  NvimTreeWinSeparator = true,
+  VertSplit = true,
+}
+
+--- nvim-tree.lua appearance defaults (restore transparent / linked groups)
+local TREE_LINK_RESTORE = {
+  NvimTreeNormal = { link = 'Normal' },
+  NvimTreeNormalNC = { link = 'NvimTreeNormal' },
+  NvimTreeNormalFloat = { link = 'NormalFloat' },
+  NvimTreeWinSeparator = { link = 'WinSeparator' },
+}
+
+---@type table<string, { orig_bg: integer|nil, orig_fg: integer|nil }>
+local hl_inactive_snap = {}
+
+local function save_inactive_hl()
+  hl_inactive_snap = {}
+  for _, name in ipairs(INACTIVE_HL_GROUPS) do
+    local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false, create = false })
+    if ok and hl then
+      hl_inactive_snap[name] = { orig_bg = hl.bg, orig_fg = hl.fg }
+    end
+  end
+end
+
+-- Inactive pane background: darker neutral gray
+local INACTIVE_BG_GRAY = 0x222222
+
+vim.api.nvim_create_autocmd('ColorScheme', {
+  callback = save_inactive_hl,
+})
+vim.api.nvim_create_autocmd('VimEnter', {
+  once = true,
+  callback = save_inactive_hl,
+})
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'NvimTree',
+  callback = save_inactive_hl,
+})
+vim.api.nvim_create_autocmd('FocusLost', {
+  callback = function()
+    if next(hl_inactive_snap) == nil then
+      save_inactive_hl()
+    end
+    for _, name in ipairs(INACTIVE_HL_GROUPS) do
+      local st = hl_inactive_snap[name]
+      if st then
+        if INACTIVE_USE_FG[name] then
+          vim.api.nvim_set_hl(0, name, { fg = INACTIVE_BG_GRAY })
+        else
+          vim.api.nvim_set_hl(0, name, { bg = INACTIVE_BG_GRAY })
+        end
+      end
+    end
+  end,
+})
+vim.api.nvim_create_autocmd('FocusGained', {
+  callback = function()
+    for _, name in ipairs(INACTIVE_HL_GROUPS) do
+      local st = hl_inactive_snap[name]
+      if st then
+        if INACTIVE_USE_FG[name] then
+          local attrs = {}
+          if st.orig_fg then
+            attrs.fg = st.orig_fg
+          end
+          if st.orig_bg then
+            attrs.bg = st.orig_bg
+          end
+          if next(attrs) then
+            vim.api.nvim_set_hl(0, name, attrs)
+          elseif name == 'NvimTreeWinSeparator' then
+            vim.api.nvim_set_hl(0, name, TREE_LINK_RESTORE.NvimTreeWinSeparator)
+          elseif name == 'WinSeparator' or name == 'VertSplit' then
+            pcall(vim.cmd, 'highlight clear ' .. name)
+          end
+        elseif st.orig_bg then
+          vim.api.nvim_set_hl(0, name, { bg = st.orig_bg })
+        elseif name == 'Normal' then
+          vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE' })
+        elseif name == 'NormalNC' then
+          vim.api.nvim_set_hl(0, 'NormalNC', { link = 'Normal' })
+        elseif TREE_LINK_RESTORE[name] then
+          vim.api.nvim_set_hl(0, name, TREE_LINK_RESTORE[name])
+        else
+          vim.api.nvim_set_hl(0, name, { bg = 'NONE' })
+        end
+      end
+    end
+  end,
+})
+
+
+
 -- ### Custom settings end here ###
 
 return {}
