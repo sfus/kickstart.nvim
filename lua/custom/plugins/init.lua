@@ -205,7 +205,14 @@ vim.api.nvim_create_autocmd('FocusGained', {
   end,
 })
 
-
+-- Brighten comment color (tokyonight-night default is too dark)
+vim.api.nvim_create_autocmd('ColorScheme', {
+  pattern = '*',
+  callback = function()
+    vim.api.nvim_set_hl(0, 'Comment', { fg = '#7c8fa8', italic = false })
+    vim.api.nvim_set_hl(0, 'LineNr', { fg = '#7c8fa8' })
+  end,
+})
 
 -- ### Custom settings end here ###
 
