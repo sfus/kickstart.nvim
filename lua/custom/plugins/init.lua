@@ -211,6 +211,7 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   callback = function()
     vim.api.nvim_set_hl(0, 'Comment', { fg = '#7c8fa8', italic = false })
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#7c8fa8' })
+    vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = '#3d3f5c' })
   end,
 })
 
