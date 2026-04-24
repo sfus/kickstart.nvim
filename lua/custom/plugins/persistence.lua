@@ -23,10 +23,6 @@ return {
           pcall(vim.api.nvim_buf_delete, buf, { force = true })
         end
       end
-      -- Open NvimTree after session is fully restored
-      vim.schedule(function()
-        pcall(require('nvim-tree.api').tree.open)
-      end)
     end
   end,
 }
