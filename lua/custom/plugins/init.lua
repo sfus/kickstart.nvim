@@ -191,7 +191,7 @@ vim.api.nvim_create_autocmd('FocusGained', {
           elseif name == 'NvimTreeWinSeparator' then
             vim.api.nvim_set_hl(0, name, TREE_LINK_RESTORE.NvimTreeWinSeparator)
           elseif name == 'WinSeparator' or name == 'VertSplit' then
-            pcall(vim.cmd, 'highlight clear ' .. name)
+            vim.api.nvim_set_hl(0, name, {})
           end
         elseif st.orig_bg then
           vim.api.nvim_set_hl(0, name, { bg = st.orig_bg })
