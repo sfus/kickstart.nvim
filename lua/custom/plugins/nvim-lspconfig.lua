@@ -10,14 +10,21 @@ return {
           local bufnr = args.buf
 
           -- Use Telescope pickers when available; fallback to plain LSP funcs
-          local tb
-          ok, _ = nil, nil
-          ok = pcall(function()
-            tb = require 'telescope.builtin'
-          end)
+          local ok, tb = pcall(require, 'telescope.builtin')
+          if not ok then tb = nil end
 
           local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+          end
+
+          local function with_lsp_check(fn)
+            return function()
+              if #vim.lsp.get_clients({ bufnr = 0 }) > 0 then
+                fn()
+              else
+                vim.notify('No LSP client attached', vim.log.levels.WARN)
+              end
+            end
           end
 
           -- ── Go to / Peek / Lists ───────────────────────────────────────────
@@ -26,9 +33,9 @@ return {
           map('n', 'gI', vim.lsp.buf.implementation, 'LSP: Go to implementation')
           map('n', 'gy', vim.lsp.buf.type_definition, 'LSP: Go to type definition')
           map('n', 'K', vim.lsp.buf.hover, 'LSP: Hover docs')
-          if ok and tb then
-            map('n', 'gr', tb.lsp_references, 'LSP: References (Telescope)')
-            map('n', '<leader>sd', tb.lsp_definitions, 'LSP: Definitions (Telescope)')
+          if tb then
+            map('n', 'gr', with_lsp_check(tb.lsp_references), 'LSP: References (Telescope)')
+            map('n', '<leader>sd', with_lsp_check(tb.lsp_definitions), 'LSP: Definitions (Telescope)')
           else
             map('n', 'gr', vim.lsp.buf.references, 'LSP: References')
           end
