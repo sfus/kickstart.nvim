@@ -9,4 +9,5 @@ return {
   -- Only set these mappings when bufferline is active
   vim.keymap.set('n', '<PageUp>', '<cmd>bprev<CR>', { desc = 'Previous buffer (bufferline)' }),
   vim.keymap.set('n', '<PageDown>', '<cmd>bnext<CR>', { desc = 'Next buffer (bufferline)' }),
+  vim.keymap.set('n', '<leader>q', '<cmd>bdelete<CR>', { desc = 'Close buffer' }),
 }
