@@ -5,10 +5,6 @@
 local function open_nvim_tree_on_start(data)
   local api = require 'nvim-tree.api'
   local arg = data.file or ''
-  if arg == '' then
-    api.tree.open()
-    return
-  end
   if vim.fn.isdirectory(arg) ~= 1 then
     return
   end
