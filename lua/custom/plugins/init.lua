@@ -15,6 +15,7 @@ vim.g.mapleader = ' '
 vim.opt.number = true
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.cursorcolumn = true
+vim.opt.wrapscan = false
 
 vim.keymap.set('n', '<leader>Q', '<cmd>qa<CR>', { silent = true, desc = 'Quit ALL' })
 vim.keymap.set('i', 'jk', '<Esc>')
