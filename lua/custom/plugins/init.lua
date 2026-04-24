@@ -51,6 +51,9 @@ vim.keymap.set("i", "<M-l>", "<Right>",  {silent=true, desc="Insert: right"})
 vim.keymap.set("i", "<M-j>", "<Down>", {silent=true, desc="Insert: down (wrap-aware)"})
 vim.keymap.set("i", "<M-k>", "<Up>", {silent=true, desc="Insert: up (wrap-aware)"})
 
+-- Visual mode key mapping
+vim.keymap.set('v', '//', '"zy/\\V<C-R>z<CR>', { desc = 'Search selected text' })
+
 -- Open a bottom terminal while keeping nvim-tree on the left
 vim.keymap.set('n', '<leader>te', function()
   -- If you're in NvimTree, move to the right window first
@@ -212,6 +215,7 @@ vim.api.nvim_create_autocmd('ColorScheme', {
     vim.api.nvim_set_hl(0, 'Comment', { fg = '#7c8fa8', italic = false })
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#7c8fa8' })
     vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = '#3d3f5c' })
+    vim.api.nvim_set_hl(0, 'Visual', { bg = '#c0407a' })
   end,
 })
 
