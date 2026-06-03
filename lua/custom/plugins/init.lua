@@ -20,6 +20,7 @@ vim.opt.wrapscan = false
 vim.keymap.set('n', '<leader>Q', '<cmd>qa<CR>', { silent = true, desc = 'Quit ALL' })
 vim.keymap.set('n', '<M-Q>', 'q', { desc = 'Record macro' })
 vim.keymap.set('n', 'q', '<nop>')
+vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('n', ';', ':')
 
